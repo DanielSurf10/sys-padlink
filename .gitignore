@@ -4,3 +4,4 @@ exefs
 *.elf
 *.npdm
 *.nso
+homebrew_test/*
