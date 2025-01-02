@@ -1,11 +1,15 @@
 #ifndef PROTOCOL_H
 # define PROTOCOL_H
 
-// Defines
+//---------------------------------------------------//
+//                      defines                      //
+//---------------------------------------------------//
 
 # define PORT 6000
 
-// Includes
+//---------------------------------------------------//
+//                      includes                     //
+//---------------------------------------------------//
 
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -13,30 +17,33 @@
 #include <errno.h>
 #include <switch.h>
 
+//---------------------------------------------------//
+//                     variables                     //
+//---------------------------------------------------//
 
-// Variables
-// Work memory
+// work memory
 extern u8								*workmem;
 extern size_t							workmem_size;
 
-// Controller session and handle
+// controller session and handle
 extern HiddbgHdlsSessionId				session_id;
 extern HiddbgHdlsHandle					controller_handle;
 
-// Controller type and state
+// controller type and state
 extern HidDeviceType					controller_initialized_type;
 extern HiddbgHdlsState					controller_state;
 
-// Controller device information
+// controller device information
 extern HiddbgHdlsDeviceInfo				controller_device;
 
-// Socket
+// socket
 extern int								socket_fd;
 extern struct sockaddr_in				servaddr;
 extern struct sockaddr_in				cliaddr;
 
-
-// Enums
+//---------------------------------------------------//
+//                       enums                       //
+//---------------------------------------------------//
 
 enum e_packet_type
 {
@@ -47,12 +54,16 @@ enum e_packet_type
 	// HAS_ACCELEROMETER	= BIT(4),
 };
 
-// Typedefs
+//---------------------------------------------------//
+//                      typedefs                     //
+//---------------------------------------------------//
 
 typedef struct payload	payload;
 typedef struct packet	packet;
 
-// Structs
+//---------------------------------------------------//
+//                      structs                      //
+//---------------------------------------------------//
 
 struct __attribute__((__packed__)) payload
 {
@@ -71,7 +82,9 @@ struct __attribute__((__packed__)) packet
 	payload	payload;
 };
 
-// Functions
+//---------------------------------------------------//
+//                     functions                     //
+//---------------------------------------------------//
 
 Result	init_all(void);
 void	finalize(void);
