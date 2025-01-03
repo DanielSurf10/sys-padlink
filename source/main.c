@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "protocol.h"
+#include "utils.h"
 
-// Size of the inner heap (adjust as necessary).
 #define INNER_HEAP_SIZE 0x80000
 
 //---------------------------------------------------//
@@ -53,6 +53,13 @@ static const SocketInitConfig	sockInitConf =
 	.bsd_service_type = BsdServiceType_User
 };
 
+// File
+#ifdef DEBUG
+FILE		*arq;
+#else
+FILE		*arq = NULL;
+#endif
+
 //---------------------------------------------------//
 //                     functions                     //
 //---------------------------------------------------//
@@ -63,7 +70,6 @@ void __libnx_initheap(void)
 	extern void *fake_heap_start;
 	extern void *fake_heap_end;
 
-	// Configure the newlib heap.
 	fake_heap_start = inner_heap;
 	fake_heap_end = inner_heap + sizeof(inner_heap);
 }
@@ -110,8 +116,10 @@ void __appInit(void)
 	// if (R_FAILED(rc))
 	// 	fatalThrow(rc);
 
+#ifdef DEBUG
 	fsInitialize();
 	fsdevMountSdmc();
+#endif
 
 	smExit();
 }
@@ -121,8 +129,12 @@ void __appExit(void)
 	hidExit();
 	hiddbgExit();
 	socketExit();
+
+#ifdef DEBUG
 	fsdevUnmountAll();
 	fsExit();
+#endif
+
 	free(workmem);
 	init_flag = 0;
 }
@@ -131,38 +143,74 @@ int main(int argc, char *argv[])
 {
 	socklen_t	len = sizeof(cliaddr);
 
-	// FILE *arq = fopen("log.log", "w");
-
 	if (init_flag == 0 || init_all() != 0)
 		return (1);
 
+#ifdef DEBUG
+	arq = fopen("log.log", "w");
+#endif
+
 	while (appletMainLoop())
 	{
-		int n;
-		int message;
+		unsigned int	n;
+		packet			new_device_state;
 
-		n = recvfrom(socket_fd, &message, 4, 0, (struct sockaddr *)&cliaddr, &len);
+		n = recvfrom(socket_fd, &new_device_state, sizeof(packet), MSG_WAITALL, (struct sockaddr *)&cliaddr, &len);
 
-		// if (message == HidDebugPadButton_A)
+		// if (new_device_state.magic_number != MAGIC_NUMBER)
+		// 	print_to_file(arq, "magic number error - %d\n", new_device_state.magic_number);
+		// else if (new_device_state.packet_size != n)
+		// 	print_to_file(arq, "invalid packet_size - %d\n", new_device_state.packet_size);
+		// else
 		// {
-			controller_state.buttons |= HidDebugPadButton_A;
-			hiddbgSetHdlsState(controller_handle, &controller_state);
-			// printf("hiddbgSetHdlsState(): 0x%x\n", rc_set_controller_state);
-			svcSleepThread(20 * 1000000);
-			controller_state.buttons = 0;
-			hiddbgSetHdlsState(controller_handle, &controller_state);
-			// printf("hiddbgSetHdlsState(): 0x%x\n", rc_set_controller_state);
+		// 	print_to_file(arq, "keys: %d\n", new_device_state.payload.keys);
+		// 	print_to_file(arq, "analog right: %d %d \n",
+		// 		new_device_state.payload.analog_right_x, new_device_state.payload.analog_right_y
+		// 	);
+		// 	print_to_file(arq, "analog left : %d %d \n",
+		// 		new_device_state.payload.analog_left_x, new_device_state.payload.analog_left_y
+		// 	);
+		// 	print_to_file(arq, "A: %d - B: %d - X: %d - Y: %d\n",
+		// 		(new_device_state.payload.keys & HidDebugPadButton_A) > 0,
+		// 		(new_device_state.payload.keys & HidDebugPadButton_B) > 0,
+		// 		(new_device_state.payload.keys & HidDebugPadButton_X) > 0,
+		// 		(new_device_state.payload.keys & HidDebugPadButton_Y) > 0
+		// 	);
 		// }
-		// else if (message == 'b')
+
+		n = apply_device_state(n, new_device_state);
+
+		if (n != 0)
+			break ;
+
+
+		// if (new_device_state == HidDebugPadButton_A)
+		// {
+			// controller_state.buttons = HidDebugPadButton_B;
+			// hiddbgSetHdlsState(controller_handle, &controller_state);
+			// svcSleepThread(20 * 1000000);
+			// controller_state.buttons = 0;
+			// hiddbgSetHdlsState(controller_handle, &controller_state);
+			// svcSleepThread(20 * 1000000);
+			// controller_state.buttons = HidDebugPadButton_A;
+			// hiddbgSetHdlsState(controller_handle, &controller_state);
+			// svcSleepThread(20 * 1000000);
+			// controller_state.buttons = 0;
+			// hiddbgSetHdlsState(controller_handle, &controller_state);
+		// }
+		// else if (new_device_state == 'b')
 		// 	break ;
 
-		break ;
+		// break ;
 
-		// svcSleepThread(5000 * 1e+6L);
+		svcSleepThread(5 * 1e+6L);
 	}
 
 	finalize();
-	// fclose(arq);
+
+#ifdef DEBUG
+	fclose(arq);
+#endif
 
 	return (0);
 }

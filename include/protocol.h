@@ -5,7 +5,8 @@
 //                      defines                      //
 //---------------------------------------------------//
 
-# define PORT 6000
+# define PORT			6000
+# define MAGIC_NUMBER	0x3276
 
 //---------------------------------------------------//
 //                      includes                     //
@@ -67,7 +68,7 @@ typedef struct packet	packet;
 
 struct __attribute__((__packed__)) payload
 {
-	u16	keys;
+	u32	keys;
 	s32	analog_right_x;
 	s32	analog_right_y;
 	s32	analog_left_x;
@@ -77,8 +78,8 @@ struct __attribute__((__packed__)) payload
 struct __attribute__((__packed__)) packet
 {
 	u16		magic_number;
-	u8		packet_type;
 	u16		packet_size;
+	u8		packet_type;
 	payload	payload;
 };
 
@@ -88,5 +89,6 @@ struct __attribute__((__packed__)) packet
 
 Result	init_all(void);
 void	finalize(void);
+Result	apply_device_state(int packet_size, packet new_device_state);
 
 #endif

@@ -1,4 +1,5 @@
 #include "protocol.h"
+#include "utils.h"
 
 Result	init_all(void)
 {
@@ -48,4 +49,40 @@ void	finalize(void)
 	close(socket_fd);
 	hiddbgDetachHdlsVirtualDevice(controller_handle);
 	hiddbgReleaseHdlsWorkBuffer(session_id);
+}
+
+Result	apply_device_state(int packet_size, packet new_device_state)
+{
+	Result	rc;
+
+	if (new_device_state.magic_number != MAGIC_NUMBER
+		|| new_device_state.packet_size != packet_size)
+		return (1);
+
+	// print_to_file(arq, "setando coisas\n");
+	// print_to_file(arq, "has_buttons: %d\n", new_device_state.packet_type & HAS_BUTTONS);
+
+	if (new_device_state.packet_type & HAS_BUTTONS)
+	{
+		// print_to_file(arq, "Botoes: %d\n", new_device_state.packet_type);
+		controller_state.buttons = new_device_state.payload.keys;
+	}
+
+	if (new_device_state.packet_type & HAS_RIGHT_ANALOG)
+	{
+		controller_state.analog_stick_r.x = new_device_state.payload.analog_left_x;
+		controller_state.analog_stick_r.y = new_device_state.payload.analog_left_y;
+	}
+
+	if (new_device_state.packet_type & HAS_LEFT_ANALOG)
+	{
+		controller_state.analog_stick_l.x = new_device_state.payload.analog_right_x;
+		controller_state.analog_stick_l.y = new_device_state.payload.analog_right_y;
+	}
+
+	rc = hiddbgSetHdlsState(controller_handle, &controller_state);
+
+	// print_to_file(arq, "new controller state: %d\n", controller_state.buttons);
+
+	return (rc);
 }
