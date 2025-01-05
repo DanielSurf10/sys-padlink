@@ -9,7 +9,7 @@
 
 // includes
 # include <3ds.h>
-# include "buttons_enums.h"
+# include "buttons.h"
 
 //----------------------------------------------------------------------------//
 //                       enums                       //

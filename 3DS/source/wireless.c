@@ -47,7 +47,7 @@ void	send_input(int socket_fd, char *server_ip, packet packet_input)
 
 	server_addr.sin_family = AF_INET;
 	server_addr.sin_port = htons(PORT);
-	inet_pton(AF_INET, IP, &server_addr.sin_addr);
+	inet_pton(AF_INET, server_ip, &server_addr.sin_addr);
 	sendto(
 		socket_fd,
 		&packet_input,

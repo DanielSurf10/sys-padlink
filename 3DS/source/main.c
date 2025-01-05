@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <malloc.h>
 #include <errno.h>
@@ -8,8 +9,28 @@
 #include "wireless.h"
 #include "protocol.h"
 
+// Le o ip do arquivo padlink.ini
+// char	*readSettings(void)
+// {
+// 	FILE *file;
+// 	static char server_ip[16];
+//
+// 	file = fopen("padlink.ini", "r");
+// 	if (file == NULL)
+// 		return NULL;
+// 	if (fgets(server_ip, 16, file) != NULL)
+// 	{
+// 		// Remove newline character if present
+// 		server_ip[strcspn(server_ip, "\n")] = '\0';
+// 	}
+// 	fclose(file);
+// 	return server_ip;
+// }
+
 int main(void)
 {
+	char	*server_ip = NULL;
+
 	acInit();
 	gfxInitDefault();
 
@@ -21,7 +42,7 @@ int main(void)
 	gfxFlushBuffers();
 	gfxSwapBuffers();
 
-	fsInit();
+	// fsInit();
 
 	clearScreen();
 	drawString(10, 10, "Initialising SOC...");
@@ -59,11 +80,15 @@ int main(void)
 	gfxFlushBuffers();
 	gfxSwapBuffers();
 
-	// Aqui lê o arquivo 3DSController.ini e seta as configurações
+	// Aqui lê o arquivo padlink.ini e seta as configurações
 	// O IP de quem vai receber os inputs está aqui
-	// if (!readSettings()) {
-	// 	hang("Could not read 3DSController.ini!");
+	// if ((server_ip = readSettings()) == NULL)
+	// {
+	// 	// hang("Could not read padlink.ini!");
+	// 	goto exit;
 	// }
+	// Por enquanto não funcionou, então vamos setar manualmente
+	server_ip = "192.168.15.105";
 
 	clearScreen();
 	// drawString(10, 10, "Connecting to %s on port %d...", settings.IPString, settings.port);
@@ -117,7 +142,7 @@ int main(void)
 		packet_input.packet_type = HAS_BUTTONS | HAS_LEFT_ANALOG;
 		packet_input.payload = packet_payload_input;
 
-		send_input(socket_fd, IP, packet_input);
+		send_input(socket_fd, server_ip, packet_input);
 
 		//receiveBuffer(sizeof(struct packet));
 
@@ -139,14 +164,14 @@ int main(void)
 	packet_input.packet_type = HAS_BUTTONS | HAS_LEFT_ANALOG;
 	memset(&packet_input.payload, 0, sizeof(payload));
 
-	send_input(socket_fd, IP, packet_input);
+	send_input(socket_fd, server_ip, packet_input);
 
 	// Daqui para baixo para tudo e fecha
 	SOCU_ShutdownSockets();
 
 	// Isso fecha alguma coisa relacionada a leitura de arquivo
 	// svcCloseHandle(fileHandle);
-	fsExit();
+	// fsExit();
 
 	gfxExit();
 	acExit();
