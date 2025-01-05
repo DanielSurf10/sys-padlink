@@ -6,6 +6,7 @@
 #include <3ds.h>
 #include "drawing.h"
 #include "wireless.h"
+#include "protocol.h"
 
 int main(void)
 {
@@ -79,7 +80,7 @@ int main(void)
 	gfxFlushBuffers();
 	gfxSwapBuffers();
 
-	// disableBacklight();
+	disableBacklight();
 
 	// Sleep for 2 seconds
 	// svcSleepThread(2000000000LL);
@@ -87,28 +88,36 @@ int main(void)
 	while (aptMainLoop())
 	{
 		u32				keys;
-		touchPosition	touch;
+		// touchPosition	touch;
 		circlePosition	circlePad;
-		circlePosition	cStick;
+		// circlePosition	cStick;
+		payload			packet_payload_input;
+		packet			packet_input;
 
 		hidScanInput();
-		irrstScanInput();
+		// irrstScanInput();
 
 		keys = hidKeysHeld();
 		hidCircleRead(&circlePad);
-		hidCstickRead(&cStick);
-		touchRead(&touch);
+		// hidCstickRead(&cStick);
+		// touchRead(&touch);
 
-		clearScreen();
-		drawString(10, 10, "socket %d", socket_fd);
-		drawString(10, 20, "circlePad: %i %i", circlePad.dx, circlePad.dy);
-		drawString(10, 50, "Press Start and Select to exit.");
+		// clearScreen();
+		// drawString(10, 10, "socket %d", socket_fd);
+		// drawString(10, 20, "circlePad: %i %i", circlePad.dx, circlePad.dy);
+		// drawString(10, 50, "Press Start and Select to exit.");
 
 		// Aqui manda os inputs para o cliente
 		// sendKeys(keys, circlePad, touch, cStick);
-		int a = send_keys(socket_fd, IP, circlePad);
-		drawString(10, 30, "send: %d", a);
-		drawString(10, 40, "erno: %s", strerror(errno));
+		// send_keys(socket_fd, IP, circlePad);
+		packet_payload_input = transform_input_for_switch(keys, circlePad);
+
+		packet_input.magic_number = MAGIC_NUMBER;
+		packet_input.packet_size = sizeof(packet);
+		packet_input.packet_type = HAS_BUTTONS | HAS_LEFT_ANALOG;
+		packet_input.payload = packet_payload_input;
+
+		send_input(socket_fd, IP, packet_input);
 
 		//receiveBuffer(sizeof(struct packet));
 
@@ -122,8 +131,15 @@ int main(void)
 
 	exit:
 
-	// enableBacklight();
+	enableBacklight();
 
+	packet	packet_input;
+	packet_input.magic_number = 0;
+	packet_input.packet_size = sizeof(packet);
+	packet_input.packet_type = HAS_BUTTONS | HAS_LEFT_ANALOG;
+	memset(&packet_input.payload, 0, sizeof(payload));
+
+	send_input(socket_fd, IP, packet_input);
 
 	// Daqui para baixo para tudo e fecha
 	SOCU_ShutdownSockets();

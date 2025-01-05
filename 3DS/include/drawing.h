@@ -26,7 +26,7 @@ void drawPixelRGBFramebuffer(u8 *fb, int x, int y, u8 r, u8 g, u8 b);
 void drawBoxFramebuffer(u8 *fb, int x, int y, int width, int height, u8 r, u8 g, u8 b);
 void drawStringFramebuffer(u8 *fb, int sx, int sy, char *text, ...);
 
-// void disableBacklight();
-// void enableBacklight();
+void disableBacklight();
+void enableBacklight();
 
 #endif

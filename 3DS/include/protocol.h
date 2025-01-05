@@ -5,42 +5,11 @@
 //                      defines                      //
 //----------------------------------------------------------------------------//
 
-# define PORT			6000
 # define MAGIC_NUMBER	0x3276
 
-//----------------------------------------------------------------------------//
-//                      includes                     //
-//----------------------------------------------------------------------------//
-
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <errno.h>
-#include <switch.h>
-
-//----------------------------------------------------------------------------//
-//                     variables                     //
-//----------------------------------------------------------------------------//
-
-// work memory
-extern u8								*workmem;
-extern size_t							workmem_size;
-
-// controller session and handle
-extern HiddbgHdlsSessionId				session_id;
-extern HiddbgHdlsHandle					controller_handle;
-
-// controller type and state
-extern HidDeviceType					controller_initialized_type;
-extern HiddbgHdlsState					controller_state;
-
-// controller device information
-extern HiddbgHdlsDeviceInfo				controller_device;
-
-// socket
-extern int								socket_fd;
-extern struct sockaddr_in				servaddr;
-extern struct sockaddr_in				cliaddr;
+// includes
+# include <3ds.h>
+# include "buttons_enums.h"
 
 //----------------------------------------------------------------------------//
 //                       enums                       //
@@ -83,12 +52,7 @@ struct __attribute__((__packed__)) packet
 	payload	payload;
 };
 
-//----------------------------------------------------------------------------//
-//                     functions                     //
-//----------------------------------------------------------------------------//
-
-Result	init_all(void);
-void	finalize(void);
-Result	apply_device_state(int packet_size, packet new_device_state);
+// functions
+payload	transform_input_for_switch(u32 keys, circlePosition circle_pad);
 
 #endif
