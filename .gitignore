@@ -4,4 +4,6 @@ exefs
 *.elf
 *.npdm
 *.nso
+*.3dsx
+*.smdh
 homebrew_test/*

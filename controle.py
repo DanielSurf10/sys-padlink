@@ -45,19 +45,15 @@ def get_packet(buttons: int, analog_left: Tuple[int, int], analog_right: Tuple[i
 	Returns:
 		bytes: A packed byte sequence representing the packet.
 	"""
-
 	magico = 0x3276
 	if desligar:
 		magico = 0
-
 	packet = pack("<HHbIiiii", magico, 25, 0b111,
 		# Keys
 		buttons,
-
 		# Analog Left
 		# X Y
 		analog_left[0], analog_left[1],
-
 		# Analog Right
 		# X Y
 		analog_right[0], analog_right[1]
@@ -88,14 +84,16 @@ desligar = get_packet(0, (0, 0), (0, 0), True)
 # s.sendto(button, ("192.168.15.105", 6000))
 # s.sendto(release_all, ("192.168.15.105", 6000))
 
-# for i in range(-32768, 32768, 100):
-# 	button = get_packet(i)
-# 	s.sendto(button, ("192.168.15.105", 6000))
-# 	print(i)
-# 	time.sleep(0.01)
-#
-# button = get_packet(0)
-# s.sendto(button, ("192.168.15.105", 6000))
-# s.sendto(desligar, ("192.168.15.105", 6000))
+for i in range(-32768, 32768, 100):
+	button = get_packet(0, (i, i), (i, i))
+	s.sendto(button, ("192.168.15.105", 6000))
+	print(i)
+	time.sleep(0.01)
+
+button = get_packet(0, (0, 0), (0, 0))
+s.sendto(button, ("192.168.15.105", 6000))
+s.sendto(desligar, ("192.168.15.105", 6000))
+
+s.sendto(get_packet(0, (0, 0), (0, 0), True), ("192.168.15.105", 6000))
 
 s.close()
