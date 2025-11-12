@@ -1,6 +1,8 @@
 {
 	"files.associations": {
 		"socket.h": "c",
-		"stdio.h": "c"
-	}
+		"stdio.h": "c",
+		"cstdarg": "c"
+	},
+	"C_Cpp.default.compilerPath": "/usr/bin/clang"
 }

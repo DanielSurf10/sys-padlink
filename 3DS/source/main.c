@@ -33,6 +33,7 @@ int main(void)
 
 	acInit();
 	gfxInitDefault();
+	consoleInit(GFX_TOP, NULL);
 
 	gfxSetDoubleBuffering(GFX_TOP, false);
 	gfxSetDoubleBuffering(GFX_BOTTOM, false);
@@ -88,7 +89,8 @@ int main(void)
 	// 	goto exit;
 	// }
 	// Por enquanto não funcionou, então vamos setar manualmente
-	server_ip = "192.168.15.105";
+	server_ip = discover_server_ip();
+	goto exit;
 
 	clearScreen();
 	// drawString(10, 10, "Connecting to %s on port %d...", settings.IPString, settings.port);
@@ -156,15 +158,15 @@ int main(void)
 
 	exit:
 
-	enableBacklight();
+	// enableBacklight();
 
-	packet	packet_input;
-	packet_input.magic_number = 0;
-	packet_input.packet_size = sizeof(packet);
-	packet_input.packet_type = HAS_BUTTONS | HAS_LEFT_ANALOG;
-	memset(&packet_input.payload, 0, sizeof(payload));
-
-	send_input(socket_fd, server_ip, packet_input);
+// 	packet	packet_input;
+// 	packet_input.magic_number = 0;
+// 	packet_input.packet_size = sizeof(packet);
+// 	packet_input.packet_type = HAS_BUTTONS | HAS_LEFT_ANALOG;
+// 	memset(&packet_input.payload, 0, sizeof(payload));
+//
+// 	send_input(socket_fd, server_ip, packet_input);
 
 	// Daqui para baixo para tudo e fecha
 	SOCU_ShutdownSockets();

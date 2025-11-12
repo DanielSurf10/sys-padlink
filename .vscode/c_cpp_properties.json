@@ -4,8 +4,9 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/include/*",
                 "/opt/devkitpro/libnx/include/**",
-				"/opt/devkitpro/libnx/include"
+                "/opt/devkitpro/libnx/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",
